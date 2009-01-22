@@ -1,0 +1,134 @@
+rm -f config.cache
+
+AC_PREREQ(2.59)
+AC_INIT([dindin], [0.0.1], [walkingice0204@gmail.com])
+AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([1.8 foreign])
+
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+
+AC_PROG_CC
+AM_PROG_LIBTOOL
+AC_HEADER_STDC
+
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.14)
+
+
+# Check Library Directory
+if test "x${libdir}" = "x${exec_prefix}/lib"; then
+   if test "x${exec_prefix}" = "xNONE"; then
+      if test "x${prefix}" = "xNONE"; then
+      	 libdir="${ac_default_prefix}/lib";
+      else
+      	 libdir="${prefix}/lib";
+      fi
+   else
+      if test "x${prefix}" = "xNONE"; then
+     	 libdir="${ac_default_prefix}/lib";
+      else
+     	 libdir="${prefix}/lib";
+      fi
+   fi
+fi
+
+#
+# Set Library Directory in config.h
+#
+if test "x${libdir}" = "xNONE"; then
+   if test "x${prefix}" = "xNONE"; then
+      AC_DEFINE_UNQUOTED(PACKAGE_LIB_DIR, "${ac_default_prefix}/lib", "Package libraries destination")
+   else
+      AC_DEFINE_UNQUOTED(PACKAGE_LIB_DIR, "${prefix}/lib", "Package libraries destination")
+   fi
+else
+   AC_DEFINE_UNQUOTED(PACKAGE_LIB_DIR, "${libdir}", "Package libraries destination")
+fi
+
+dnl Set PACKAGE_BIN_DIR in config.h.
+if test "x${datadir}" = 'x${prefix}/bin'; then
+  if test "x${prefix}" = "xNONE"; then
+    AC_DEFINE_UNQUOTED(PACKAGE_BIN_DIR, "${ac_default_prefix}/bin", [Installation directory for user executables])
+  else
+    AC_DEFINE_UNQUOTED(PACKAGE_BIN_DIR, "${prefix}/bin", [Installation directory for user executables])
+  fi
+else
+  AC_DEFINE_UNQUOTED(PACKAGE_BIN_DIR, "${bindir}", [Installation directory for user executables])
+fi
+
+
+
+#
+# Set Data Directory in config.h
+#
+if test "x${prefix}" = "xNONE"; then
+   datadir="${ac_default_prefix}/share/"
+else
+   datadir="${prefix}/share/"
+fi
+AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${datadir}", [Shared Data Directory])
+
+if test "x${prefix}" = "xNONE"; then
+   fontsdir="${ac_default_prefix}/share/fonts/truetype"
+else
+   fontsdir="${prefix}/share/fonts/truetype"
+fi
+AC_DEFINE_UNQUOTED(PACKAGE_FONTS_DIR, "${fontsdir}", [Shared Fonts Directory])
+
+
+#
+# Set Data Root and Locale Directory in config.h
+#
+AC_PREFIX_DEFAULT(/usr/local)
+if test "x$prefix" = "xNONE"; then
+  datarootdir=${ac_default_prefix}
+else
+  datarootdir=${prefix}/share
+fi
+localedir=${datarootdir}/locale
+AC_SUBST(LOCALEDIR, "${localedir}")
+AC_DEFINE_UNQUOTED(LOCALEDIR, "${localedir}", "Module Locale Directory")
+
+#
+# Check Poppler Libs
+#
+PKG_CHECK_MODULES(poppler, poppler)
+poppler_cflags=`pkg-config --cflags poppler poppler-glib`
+poppler_libs=`pkg-config --libs poppler poppler-glib`
+AC_SUBST(poppler_cflags)
+AC_SUBST(poppler_libs)
+
+#
+# Check OpenGL and GLUT
+#
+#PKG_CHECK_MODULES(OPENGL, [libgl3])
+#PKG_CHECK_MODULES(GLUT, [libglut3])
+
+# Check Pango
+PKG_CHECK_MODULES(pango, pango)
+pango_cflags=`pkg-config --cflags pango`
+pango_libs=`pkg-config --libs pango`
+AC_SUBST(pango_cflags)
+AC_SUBST(pango_libs)
+
+# Check Cairo
+PKG_CHECK_MODULES(cairo, cairo)
+cairo_cflags=`pkg-config --cflags cairo`
+cairo_libs=`pkg-config --libs cairo`
+AC_SUBST(cairo_cflags)
+AC_SUBST(cairo_libs)
+
+# Check Gdk-pixbuf
+PKG_CHECK_MODULES(gdkpixbuf, gdk-pixbuf-2.0)
+gdkpixbuf_cflags=`pkg-config --cflags gdk-pixbuf-2.0`
+gdkpixbuf_libs=`pkg-config --libs gdk-pixbuf-2.0`
+AC_SUBST(gdkpixbuf_cflags)
+AC_SUBST(gdkpixbuf_libs)
+
+AC_OUTPUT([
+Makefile
+src/Makefile
+],[])
+
