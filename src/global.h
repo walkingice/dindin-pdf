@@ -24,7 +24,7 @@
 #define PROJECTION_RIGHT   5.0
 #define PROJECTION_TOP     5.0
 #define PROJECTION_BOTTOM -5.0
-#define PROJECTION_NEAR    9.1
+#define PROJECTION_NEAR    10
 #define PROJECTION_FAR     50.0
 
 enum _KEYBOARD_KEY {
