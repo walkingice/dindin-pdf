@@ -19,6 +19,10 @@
  * \author Julian Chu (WalkingIce)
  * \date 2008-12-27
  */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,7 +152,7 @@ void resize(GLsizei width, GLsizei height) {
 /**
  * @brief callback function for GLUT
  */
-void keyboard(unsigned char key, int x, int y) {
+void keyboard(unsigned char key, int x UNUSED, int y UNUSED) {
 	/* Get a keycode while user press any key.
 	   Pass it into State machine */
 	KEYBOARD_KEY new_key = convert_keycode(key);
@@ -184,7 +188,7 @@ void keyboard_s(int key, int x, int y) {
 /**
  * @brief callback function for GLUT, non-usable yet
  */
-void mouse(int button, int state, int x, int y) {
+void mouse(int button, int state, int x UNUSED, int y UNUSED) {
 	switch(button) {
 		case GLUT_LEFT_BUTTON:
 			if(state == GLUT_DOWN) {
