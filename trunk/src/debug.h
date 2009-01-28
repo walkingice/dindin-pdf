@@ -3,7 +3,10 @@
 
 #include <assert.h>
 
-#define CONFIG_DEBUG
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef CONFIG_DEBUG
 #include <stdio.h>
 #define debug(f, a...)                                             \
