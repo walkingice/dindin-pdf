@@ -48,10 +48,13 @@
 #define MAX_FILE_PATH 1024
 
 struct list_head* slides_head; // Poppler read in PDF into struct Slide, then put them here
+static PopplerDocument* document = NULL;
+static int max_slides_number = 0;
 
 static void         print_usage();
 static void         change_slide_or_not(KEYBOARD_KEY key);
 static void         move_cursor_or_not(KEYBOARD_KEY key);
+static int          keep_read_slide(PopplerDocument* doc, struct list_head* slides_head, int max_slides);
 static KEYBOARD_KEY convert_keycode(unsigned char key);
 static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key);
 
@@ -64,10 +67,7 @@ void display();
  */
 void init(char* filename, int page_number_by_user) {
 
-	int read_pages = 0;
-	int i = 0;
 	gchar *filename_uri  = NULL;
-	PopplerDocument *doc = NULL;
 
 	debug("GL version:%s\n",(char*)glGetString(GL_VERSION));
 
@@ -80,29 +80,19 @@ void init(char* filename, int page_number_by_user) {
 
 	debug("Read in file %s\n",filename);
 	filename_uri = get_file_uri (filename);
-	doc = poppler_document_new_from_file(filename_uri, NULL, NULL);
+	document = poppler_document_new_from_file(filename_uri, NULL, NULL);
 
 	if(page_number_by_user == 0)
-		read_pages = poppler_document_get_n_pages(doc);
+		max_slides_number = poppler_document_get_n_pages(document);
 	else
-		read_pages = page_number_by_user;
+		max_slides_number = page_number_by_user;
 
 	/* Initialize Slides structures  */
 	/* Fixme: someone implement a function deinit_list_head ? */
 	slides_head = (struct list_head*) malloc(sizeof(struct list_head));
 	INIT_LIST_HEAD(slides_head);
 
-	for(i=0 ;i<read_pages; i++) {
-		Slide *slide = (Slide *)calloc(1, sizeof(Slide));
-		PopplerPage *page;
-		page = poppler_document_get_page(doc, i);
-
-		init_slide(page,slide,i);
-		INIT_LIST_HEAD(&slide->node);
-		list_add_tail(&slide->node, slides_head);
-	}
-	init_slide_view(slides_head, display);
-	init_thumb_view(slides_head, display);
+	keep_read_slide(document, slides_head, max_slides_number);
 	set_state(SHOW_THUMBNAIL);
 	set_cursor(0);
 }
@@ -186,6 +176,20 @@ void keyboard(unsigned char key, int x UNUSED, int y UNUSED) {
 void keyboard_s(int key, int x, int y) {
 	keyboard((unsigned char)key, x, y);
 }
+
+/**
+ *  @brief A callback function for GLUT. It will keep read in unread slides while idle and terminate while finish.
+ */
+static void idle_read_slides() {
+	int keep = keep_read_slide(document, slides_head, max_slides_number);
+	if(keep == 0) {
+		/* We already read whole slides, terminate Idle function */
+		glutIdleFunc(NULL);
+	} else {
+		debug("Dindin alread read in %dth slide\n", keep);
+	}
+}
+
 /**
  * @brief callback function for GLUT, non-usable yet
  */
@@ -224,6 +228,49 @@ static void change_slide_or_not(KEYBOARD_KEY key) {
 	change_slide_by_keyboard(key);
 	set_cursor(get_slide_index());
 	glutPostRedisplay();
+}
+
+/**
+ * @brief Read in one more slide into internal struct.
+ * @param doc Read slides from here
+ * @param slides_head Put the read-in slide into here
+ * @param max_slides Limit the maximum numbers of slides we want to read in
+ * @return Shall we keep read more slides (return Number of pages already read) or not (return 0)
+ */
+static int keep_read_slide(PopplerDocument* doc, struct list_head* slides_head, int max_slides) {
+	int now_page = 0; // How many pages we already read in
+	struct list_head* counter = slides_head;
+	Slide *slide;
+	PopplerPage *page;
+
+	/* Calculate which page of _doc_ we already read in */
+	while(counter->next != slides_head) {
+		counter = counter->next;
+		now_page++;
+	}
+
+	if(now_page >= max_slides) {
+		return 0;
+	}
+
+	if(now_page >= poppler_document_get_n_pages(doc)) {
+		return 0;
+	}
+
+	/* It is a bit tricky. If we already read N pages,so now_page == N
+	 * We are going to read N+1 page ,but we just call poppler_document_get_page(doc, N)
+	 * because of that the first page of _doc_ is 0 but not 1 */
+	slide = (Slide *) calloc(1, sizeof(Slide));
+	page  = poppler_document_get_page(doc, now_page);
+	init_slide(page, slide, now_page);
+	INIT_LIST_HEAD(&slide->node);
+	list_add_tail(&slide->node, slides_head);
+
+	init_slide_view(slides_head, display);
+	init_thumb_view(slides_head, display);
+
+	glutPostRedisplay();
+	return now_page;
 }
 
 /**
@@ -342,6 +389,7 @@ int main(int argc, char **argv)
 	glutReshapeFunc (resize);
 	glutKeyboardFunc (keyboard);
 	glutSpecialFunc (keyboard_s);
+	glutIdleFunc (idle_read_slides);
 	glutMouseFunc(mouse);
 
 	init(filename, page_number_by_user);
