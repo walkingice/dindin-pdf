@@ -15,48 +15,67 @@
  *
  */
 
+#include <stdlib.h>
+#include <time.h>
+#include <sys/time.h>
+
 #include "global.h"
 #include "slip_animation.h"
 
+#define TICKS_PER_SEC 100.0
+
+static double dindin_time_get(void);
+
 static Vertex position = {0, 0, -10};
-static int frame;
+static double time_swap, time_start;
 static int right_or_left;
 void clear_slip_animation() {
 	position.x = 0;
 	position.y = 0;
 	position.z = -10;
-	frame = 42;
+	time_swap  = 0.4;
+	time_start = dindin_time_get();
 }
 
 int have_next_frame_slip_right() {
-	right_or_left = 1;
-	if(frame > 32)
-		position.z -= 0.1;
-	if(frame < 10)
-		position.z += 0.1;
-	if(frame <= 32 && frame >= 10) {
-		position.x -= 10.5/22;
-	}
-	frame--;
-	if(frame <= 0)
+
+	double time_elapse = dindin_time_get() - time_start;
+	if(time_elapse >= time_swap)
 		return 0;
-	else
-		return 1;
+
+	right_or_left = 1;
+	float percent = (float)(time_elapse/time_swap);
+
+	if(percent < 0.2) {
+		position.x = 0;
+		position.z = -10 - 5*percent;
+	}else if(percent > 0.8) {
+		position.x = -11;
+		position.z = -11 + 5 * (percent-0.8);
+	}else {
+		position.x = -11 * ((percent-0.2)/0.6);
+	}
+	return 1;
 }
 int have_next_frame_slip_left() {
-	right_or_left = -1;
-	if(frame > 32)
-		position.z -= 0.1;
-	if(frame < 10)
-		position.z += 0.1;
-	if(frame <= 32 && frame >= 10) {
-		position.x += 10.5/22;
-	}
-	frame--;
-	if(frame <= 0)
+
+	float time_elapse = dindin_time_get() - time_start;
+	if(time_elapse >= time_swap)
 		return 0;
-	else
-		return 1;
+
+	right_or_left = -1;
+	float percent = time_elapse/time_swap;
+
+	if(percent < 0.2) {
+		position.x = 0;
+		position.z = -10 - 5*percent;
+	}else if(percent > 0.8) {
+		position.x = 11;
+		position.z = -11 + 5 * (percent-0.8);
+	}else {
+		position.x = 11 * ((percent-0.2)/0.6);
+	}
+	return 1;
 }
 
 void exec_slip_animation (Slide *slide_now, Slide *slide_next) {
@@ -103,5 +122,19 @@ void exec_slip_animation (Slide *slide_now, Slide *slide_next) {
 	glVertex3i(-5, -5, 0);
 	glEnd();
 	glDisable(GL_TEXTURE_RECTANGLE_ARB);
+}
+
+// Borrowed this part of code from ecore_time.c of Enlightenment project.
+/* FIXME: clock_gettime() is an option... */
+
+/**
+ * Retrieves the current system time as a floating point value in seconds.
+ * @return  The number of seconds since 12.00AM 1st January 1970.
+ */
+double dindin_time_get(void) {
+	struct timeval timev;
+
+	gettimeofday(&timev, NULL);
+	return (double)timev.tv_sec + (((double)timev.tv_usec) / 1000000);
 }
 
