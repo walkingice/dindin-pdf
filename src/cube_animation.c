@@ -16,31 +16,45 @@
  */
 
 #include <GL/gl.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "global.h"
 #include "slip_animation.h"
 
 float angle;
 int left_or_right;
+static double time_swap, time_start;
+
+static double dindin_time_get(void);
+
 void clear_cube_animation() {
 	angle = 0;
+	time_swap = 0.4;
+	time_start = dindin_time_get();
 }
 
 int have_next_frame_cube_right() {
-	left_or_right = 1;
-	angle = angle + 1;
-	if(angle > 90)
+	double time_elapse = dindin_time_get() - time_start;
+	if(time_elapse >= time_swap)
 		return 0;
-	else
-		return 1;
+
+	left_or_right = 1;
+	float percent = (float)(time_elapse/time_swap);
+
+	angle = 90 * percent;
+	return 1;
 }
 int have_next_frame_cube_left() {
-	left_or_right = -1;
-	angle = angle + 1;
-	if(angle > 90)
+	double time_elapse = dindin_time_get() - time_start;
+	if(time_elapse >= time_swap)
 		return 0;
-	else
-		return 1;
+
+	left_or_right = -1;
+	float percent = (float)(time_elapse/time_swap);
+
+	angle = 90 * percent;
+	return 1;
 }
 
 void exec_cube_animation_right (Slide *slide_now, Slide *slide_next) {
@@ -240,5 +254,19 @@ void exec_cube_animation_left (Slide *slide_now, Slide *slide_next) {
 	}
 	glDisable(GL_TEXTURE_RECTANGLE_ARB);
 
+}
+
+// Borrowed this part of code from ecore_time.c of Enlightenment project.
+/* FIXME: clock_gettime() is an option... */
+
+/**
+ * Retrieves the current system time as a floating point value in seconds.
+ * @return  The number of seconds since 12.00AM 1st January 1970.
+ */
+double dindin_time_get(void) {
+	struct timeval timev;
+
+	gettimeofday(&timev, NULL);
+	return (double)timev.tv_sec + (((double)timev.tv_usec) / 1000000);
 }
 
