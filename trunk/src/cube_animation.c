@@ -18,6 +18,7 @@
 #include <GL/gl.h>
 #include <time.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include "global.h"
 #include "slip_animation.h"
@@ -45,6 +46,7 @@ int have_next_frame_cube_right() {
 	angle = 90 * percent;
 	return 1;
 }
+
 int have_next_frame_cube_left() {
 	double time_elapse = dindin_time_get() - time_start;
 	if(time_elapse >= time_swap)
@@ -70,23 +72,16 @@ void exec_cube_animation_right (Slide *slide_now, Slide *slide_next) {
 	glLoadIdentity();
 
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glTranslatef(0, 0, -15);
+	glTranslatef(0, 0, -10.01);
 
-	if(angle < 45) {
-		glTranslatef(0,0,-1*(angle/5.0));
-		glRotatef(angle,1,0,0);
-	}else {
-		glTranslatef(0, 0, -1*((90-angle)/5.0));
-		glRotatef(90 - angle, 1, 0, 0);
-	}
+	// 5 * sqrt(2) = 7.07
+	glTranslatef(0, 0,-7.07 *sin( (angle+45)*M_PI/180) );
 
 	glRotatef(left_or_right *angle, 0, -1, 0);
 	glEnable(GL_TEXTURE_RECTANGLE_ARB);
 
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	if(angle < 45) {
-
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture_next);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0,0.0);
@@ -111,48 +106,6 @@ void exec_cube_animation_right (Slide *slide_now, Slide *slide_next) {
 	glVertex3i(-5, -5, 5);
 	glEnd();
 
-	glBegin(GL_POLYGON);
-	glNormal3i(0,1,0);
-	glVertex3i(-5, 5,5);
-	glVertex3i(5, 5,5);
-	glVertex3i(5, 5,-5);
-	glVertex3i(-5, 5,-5);
-	glEnd();
-
-	}else {
-	glBegin(GL_POLYGON);
-	glNormal3i(0,1,0);
-	glVertex3i(-5, 5,5);
-	glVertex3i(5, 5,5);
-	glVertex3i(5, 5,-5);
-	glVertex3i(-5, 5,-5);
-	glEnd();
-
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture_now);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,0.0);
-	glVertex3i(-5, 5, 5); 
-	glTexCoord2f(now_width, 0.0);
-	glVertex3i(5, 5, 5);
-	glTexCoord2f(now_width, now_height);
-	glVertex3i(5, -5, 5);
-	glTexCoord2f(0.0, now_height);
-	glVertex3i(-5, -5, 5);
-	glEnd();
-
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture_next);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,0.0);
-	glVertex3i(5, 5, 5); 
-	glTexCoord2f(next_width, 0.0);
-	glVertex3i(5, 5, -5);
-	glTexCoord2f(next_width, next_height);
-	glVertex3i(5, -5, -5);
-	glTexCoord2f(0.0, next_height);
-	glVertex3i(5, -5, 5);
-	glEnd();
-
-	}
 	glDisable(GL_TEXTURE_RECTANGLE_ARB);
 
 }
@@ -169,23 +122,16 @@ void exec_cube_animation_left (Slide *slide_now, Slide *slide_next) {
 	glLoadIdentity();
 
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glTranslatef(0, 0, -15);
+	glTranslatef(0, 0, -10.01);
 
-	if(angle < 45) {
-		glTranslatef(0,0,-1*(angle/5.0));
-		glRotatef(angle,1,0,0);
-	}else {
-		glTranslatef(0, 0, -1*((90-angle)/5.0));
-		glRotatef(90 - angle, 1, 0, 0);
-	}
+	// 5 * sqrt(2) = 7.07
+	glTranslatef(0, 0,-7.07 *sin( (angle+45)*M_PI/180) );
 
 	glRotatef(left_or_right *angle, 0, -1, 0);
 	glEnable(GL_TEXTURE_RECTANGLE_ARB);
 
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	if(angle < 45) {
-
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture_next);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0,0.0);
@@ -210,48 +156,6 @@ void exec_cube_animation_left (Slide *slide_now, Slide *slide_next) {
 	glVertex3i(-5, -5, 5);
 	glEnd();
 
-	glBegin(GL_POLYGON);
-	glNormal3i(0,1,0);
-	glVertex3i(-5, 5,5);
-	glVertex3i(5, 5,5);
-	glVertex3i(5, 5,-5);
-	glVertex3i(-5, 5,-5);
-	glEnd();
-
-	}else {
-	glBegin(GL_POLYGON);
-	glNormal3i(0,1,0);
-	glVertex3i(-5, 5,5);
-	glVertex3i(5, 5,5);
-	glVertex3i(5, 5,-5);
-	glVertex3i(-5, 5,-5);
-	glEnd();
-
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture_now);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,0.0);
-	glVertex3i(-5, 5, 5); 
-	glTexCoord2f(now_width, 0.0);
-	glVertex3i(5, 5, 5);
-	glTexCoord2f(now_width, now_height);
-	glVertex3i(5, -5, 5);
-	glTexCoord2f(0.0, now_height);
-	glVertex3i(-5, -5, 5);
-	glEnd();
-
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture_next);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,0.0);
-	glVertex3i(-5, 5, -5); 
-	glTexCoord2f(next_width, 0.0);
-	glVertex3i(-5, 5, 5);
-	glTexCoord2f(next_width, next_height);
-	glVertex3i(-5, -5, 5);
-	glTexCoord2f(0.0, next_height);
-	glVertex3i(-5, -5, -5);
-	glEnd();
-
-	}
 	glDisable(GL_TEXTURE_RECTANGLE_ARB);
 
 }
