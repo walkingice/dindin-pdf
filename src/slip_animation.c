@@ -22,8 +22,6 @@
 #include "global.h"
 #include "slip_animation.h"
 
-#define TICKS_PER_SEC 100.0
-
 static double dindin_time_get(void);
 
 static Vertex position = {0, 0, -10};
