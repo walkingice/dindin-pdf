@@ -74,6 +74,7 @@ void init(char* filename, int page_number_by_user) {
 	glClearColor(1.0, 1.0, 0.5, 1.0); // Clear background
 	glShadeModel(GL_FLAT);
 	glEnable(GL_TEXTURE_RECTANGLE_ARB);
+	glEnable(GL_DEPTH_TEST);
 
 	/* Use Poppler to read in PDF file */
 	g_type_init();
