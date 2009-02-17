@@ -78,6 +78,20 @@ void show_thumbnail() {
 
 	draw_cursor(cursor_quard.lt, cursor_quard.rt,
 			cursor_quard.rb, cursor_quard.lb);
+
+	glPushMatrix();
+	glLoadIdentity();
+	glBegin(GL_POLYGON);
+	glColor3f(0.0f,0.0f,0.0f);
+	glVertex3f(PROJECTION_LEFT - 1, PROJECTION_RIGHT + 1, -1*PROJECTION_NEAR - 1);
+	glColor3f(0.1f,0.1f,0.1f);
+	glVertex3f(PROJECTION_RIGHT + 1, PROJECTION_TOP + 1, -1*PROJECTION_NEAR - 1);
+	glColor3f(0.3f,0.3f,0.3f);
+	glVertex3f(PROJECTION_RIGHT + 1, PROJECTION_BOTTOM - 1, -1*PROJECTION_NEAR - 1);
+	glColor3f(0.2f,0.2f,0.2f);
+	glVertex3f(PROJECTION_LEFT - 1, PROJECTION_BOTTOM - 1, -1*PROJECTION_NEAR - 1);
+	glEnd();
+	glPopMatrix();
 }
 
 /**
