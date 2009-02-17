@@ -72,7 +72,7 @@ void init(char* filename, int page_number_by_user) {
 	debug("GL version:%s\n",(char*)glGetString(GL_VERSION));
 
 	glClearColor(1.0, 1.0, 0.5, 1.0); // Clear background
-	glShadeModel(GL_FLAT);
+	//glShadeModel(GL_FLAT); // disable it or we don't have radient color
 	glEnable(GL_TEXTURE_RECTANGLE_ARB);
 	glEnable(GL_DEPTH_TEST);
 
