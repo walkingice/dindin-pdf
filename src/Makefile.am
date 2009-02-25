@@ -31,6 +31,7 @@ noinst_HEADERS = cover_animation.h \
 		 slide_view.h \
 		 slip_animation.h \
 		 state.h \
+		 toolkit.h \
 		 thumb_view.h
 
 dindin_SOURCES = cover_animation.c \
@@ -40,6 +41,7 @@ dindin_SOURCES = cover_animation.c \
 		 slide_view.c \
 		 slip_animation.c \
 		 state.c \
+		 toolkit.c \
 		 thumb_view.c
 		  
 dindin_LDADD = @poppler_libs@\

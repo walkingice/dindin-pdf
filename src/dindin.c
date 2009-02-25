@@ -44,6 +44,7 @@
 #include "slide.h"
 #include "thumb_view.h"
 #include "slide_view.h"
+#include "toolkit.h"
 
 #define MAX_FILE_PATH 1024
 
@@ -379,24 +380,18 @@ int main(int argc, char **argv)
 		print_usage();
 	}
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-//	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT );
-	glutInitWindowPosition(200,150);
-	glutCreateWindow("Din Din");
-	/* Set callback function */
-	glutDisplayFunc(display);
-	glutReshapeFunc (resize);
-	glutKeyboardFunc (keyboard);
-	glutSpecialFunc (keyboard_s);
-	glutIdleFunc (idle_read_slides);
-	glutMouseFunc(mouse);
+	toolkit_init(&argc, argv, "Din Din", SCREEN_WIDTH, SCREEN_HEIGHT, 200, 150);
+	set_toolkit_callback_idle(&idle_read_slides);
+	set_toolkit_callback_display(&display);
+	set_toolkit_callback_reshape(&resize);
+	set_toolkit_callback_keyboard(keyboard);
+	set_toolkit_callback_special(keyboard_s);
+	set_toolkit_callback_mouse(mouse);
 
 	init(filename, page_number_by_user);
-	glutMainLoop();
+
+	toolkit_mainloop();
 
 	free(filename);
 	return(0);
 }
-
