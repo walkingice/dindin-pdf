@@ -56,8 +56,6 @@ static void         print_usage();
 static void         change_slide_or_not(KEYBOARD_KEY key);
 static void         move_cursor_or_not(KEYBOARD_KEY key);
 static int          keep_read_slide(PopplerDocument* doc, struct list_head* slides_head, int max_slides);
-static KEYBOARD_KEY convert_keycode(unsigned char key);
-static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key);
 
 void display();
 
@@ -100,7 +98,7 @@ void init(char* filename, int page_number_by_user) {
 }
 
 /**
- * @brief callback function for GLUT
+ * @brief callback function for toolkit if it ask OpenGL to draw display
  */
 void display() {
 	STATE state = get_state();
@@ -116,17 +114,21 @@ void display() {
 	}else if(state == CHECK_EXIT_OR_NOT) {
 		glTranslatef(0,0,-12);
 		glRotatef(45,1,1,1);
-		glutWireCube(2);
+		toolkit_say_byebye();
 	}else {
 		debug("Nothing happened\n");
 	}
 
 	glFlush();
+
+	// I have no idea how to move it out yet
+	// The only way I know that avoid GLUT is using something relate to X window.
+	// glXSwapBuffers(Display *display, Window window);
 	glutSwapBuffers();
 }
 
 /**
- * @brief callback function for GLUT
+ * @brief callback function for toolkit if the size of window was changed
  */
 void resize(GLsizei width, GLsizei height) {
 	debug("function resize was called\n");
@@ -143,12 +145,12 @@ void resize(GLsizei width, GLsizei height) {
 }
 
 /**
- * @brief callback function for GLUT
+ * @brief callback function for toolkit if user press keyboard
  */
 void keyboard(unsigned char key, int x UNUSED, int y UNUSED) {
 	/* Get a keycode while user press any key.
 	   Pass it into State machine */
-	KEYBOARD_KEY new_key = convert_keycode(key);
+	KEYBOARD_KEY new_key = toolkit_convert_keycode(key);
 	STATE next = get_state_by_key(new_key);
 	debug("return state is %d\n",next);
 
@@ -170,31 +172,33 @@ void keyboard(unsigned char key, int x UNUSED, int y UNUSED) {
 		debug("nothing happened\n");
 	}
 
-	glutPostRedisplay();
+	toolkit_redisplay();
 }
 /**
- * @brief callback function for GLUT
+ * @brief callback function for toolkit if user press some special keys
  */
 void keyboard_s(int key, int x, int y) {
 	keyboard((unsigned char)key, x, y);
 }
 
 /**
- *  @brief A callback function for GLUT. It will keep read in unread slides while idle and terminate while finish.
+ *  @brief A callback function for toolkit while program is idle. It will keep read in unread slides while idle and terminate while finish.
  */
 static void idle_read_slides() {
 	int keep = keep_read_slide(document, slides_head, max_slides_number);
 	if(keep == 0) {
 		/* We already read whole slides, terminate Idle function */
-		glutIdleFunc(NULL);
+		set_toolkit_callback_idle(NULL);
 	} else {
 		debug("Dindin alread read in %dth slide\n", keep);
 	}
 }
 
 /**
- * @brief callback function for GLUT, non-usable yet
+ * @brief callback function for toolkit with mouse event, non-usable yet
  */
+/*
+   Hide this function cause we don't use mouse yet
 void mouse(int button, int state, int x UNUSED, int y UNUSED) {
 	switch(button) {
 		case GLUT_LEFT_BUTTON:
@@ -209,6 +213,7 @@ void mouse(int button, int state, int x UNUSED, int y UNUSED) {
 			break;
 	}
 }
+*/
 
 /**
  * @brief Pass the keycode to thumb_view for deciding move cursor or not.
@@ -218,7 +223,7 @@ static void move_cursor_or_not(KEYBOARD_KEY key) {
 	debug("function keyboard_s was called\n");
 	move_cursor_by_keyboard(key);
 	set_slide(get_cursor());
-	glutPostRedisplay();
+	toolkit_redisplay();
 }
 
 /**
@@ -229,7 +234,7 @@ static void change_slide_or_not(KEYBOARD_KEY key) {
 	//int now_cursor = get_cursor();
 	change_slide_by_keyboard(key);
 	set_cursor(get_slide_index());
-	glutPostRedisplay();
+	toolkit_redisplay();
 }
 
 /**
@@ -271,45 +276,8 @@ static int keep_read_slide(PopplerDocument* doc, struct list_head* slides_head, 
 	init_slide_view(slides_head, display);
 	init_thumb_view(slides_head, display);
 
-	glutPostRedisplay();
+	toolkit_redisplay();
 	return now_page;
-}
-
-/**
- * @brief An interface. Return KEYBOARD_KEY while user press a key
- * @param key The key code what user press
- */
-static KEYBOARD_KEY convert_keycode(unsigned char key) {
-	return convert_keycode_from_glut(key);
-}
-
-/**
- * @brief An implementation of interface conver_keycode
- * @param key The key code what user press
- */
-static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key) {
-	if(key == GLUT_KEY_RIGHT) {
-		return KEY_RIGHT;
-	}else if(key == GLUT_KEY_LEFT) {
-		return KEY_LEFT;
-	}else if(key == GLUT_KEY_UP) {
-		return KEY_UP;
-	}else if(key == GLUT_KEY_DOWN) {
-		return KEY_DOWN;
-	}else if(key == GLUT_KEY_PAGE_UP) {
-		return KEY_PAGEUP;
-	}else if(key == GLUT_KEY_PAGE_DOWN) {
-		return KEY_PAGEDOWN;
-	}else if(key == 0x0d) {
-		return KEY_ENTER;
-	}else if(key == 0x1b) {
-		return KEY_ESC;
-	}else if(key == 'Y' || key == 'y') {
-		return KEY_Y;
-	}else {
-		debug("unknow key  %c = %x\n",key,key);
-		return KEY_UNKNOWN;
-	}
 }
 
 static void print_usage() {
@@ -384,9 +352,10 @@ int main(int argc, char **argv)
 	set_toolkit_callback_idle(&idle_read_slides);
 	set_toolkit_callback_display(&display);
 	set_toolkit_callback_reshape(&resize);
-	set_toolkit_callback_keyboard(keyboard);
-	set_toolkit_callback_special(keyboard_s);
-	set_toolkit_callback_mouse(mouse);
+	set_toolkit_callback_keyboard(&keyboard);
+	set_toolkit_callback_special(&keyboard_s);
+	// Hide this function cause we don't use mouse yet
+	//set_toolkit_callback_mouse(&mouse);
 
 	init(filename, page_number_by_user);
 
