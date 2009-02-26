@@ -1,0 +1,14 @@
+#summary One-sentence summary of this page.
+#labels Phase-Requirements
+
+= Current Status =
+What I am going to do with Dindin.
+
+== Move GLUT out ==
+2009.02.26
+
+*move GLUT into another implementat layer.
+
+  I moved out GLUT from dindin.c into toolkit.c. However, it is not enough. toolkit.c should only be a abstract layer.
+
+*Add GTK implementation.
