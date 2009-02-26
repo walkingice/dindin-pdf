@@ -14,11 +14,11 @@ INCLUDES = -I. \
 	-Wall	\
 	-Werror \
 	-DPACKAGE_NAME=\"@PACKAGE_NAME@\"  \
-	$(othercflag)	\
         @poppler_cflags@ \
 	@pango_cflags@ \
 	@cairo_cflags@ \
-	@gdkpixbuf_cflags@
+	@gdkpixbuf_cflags@ \
+	$(othercflag)
 
 bin_PROGRAMS =dindin
 
