@@ -26,7 +26,12 @@
 
 #include <GL/glut.h>
 
+#include "global.h"
 #include "toolkit.h"
+#include "debug.h"
+
+static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key);
+
 
 int set_toolkit_callback_idle(void (*ptr_callback_function)()) {
 	glutIdleFunc(ptr_callback_function);
@@ -72,5 +77,51 @@ int  toolkit_init(int *argc, char **argv, char *window_name
 
 void toolkit_mainloop() {
 	glutMainLoop();
+}
+
+void toolkit_redisplay() {
+	glutPostRedisplay();
+}
+
+int toolkit_say_byebye() {
+	glutWireCube(2);
+	return 0;
+}
+
+/**
+ * @brief An interface. Return KEYBOARD_KEY while user press a key
+ * @param key The key code what user press
+ */
+KEYBOARD_KEY toolkit_convert_keycode(unsigned char key) {
+	return convert_keycode_from_glut(key);
+}
+
+/**
+ * @brief An implementation of interface conver_keycode
+ * @param key The key code what user press
+ */
+static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key) {
+	if(key == GLUT_KEY_RIGHT) {
+		return KEY_RIGHT;
+	}else if(key == GLUT_KEY_LEFT) {
+		return KEY_LEFT;
+	}else if(key == GLUT_KEY_UP) {
+		return KEY_UP;
+	}else if(key == GLUT_KEY_DOWN) {
+		return KEY_DOWN;
+	}else if(key == GLUT_KEY_PAGE_UP) {
+		return KEY_PAGEUP;
+	}else if(key == GLUT_KEY_PAGE_DOWN) {
+		return KEY_PAGEDOWN;
+	}else if(key == 0x0d) {
+		return KEY_ENTER;
+	}else if(key == 0x1b) {
+		return KEY_ESC;
+	}else if(key == 'Y' || key == 'y') {
+		return KEY_Y;
+	}else {
+		debug("unknow key  %c = %x\n",key,key);
+		return KEY_UNKNOWN;
+	}
 }
 

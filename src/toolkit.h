@@ -32,6 +32,11 @@ int  toolkit_init(int *argc, char **argv, char *window_name
 		, int window_width, int window_height
 		, int position_x, int position_y);
 
+void toolkit_redisplay();
+int  toolkit_say_byebye();
+
+KEYBOARD_KEY toolkit_convert_keycode(unsigned char key);
+
 int set_toolkit_callback_idle(void (*ptr_callback_function)());
 int set_toolkit_callback_display(void (*ptr_callback_function)());
 int set_toolkit_callback_reshape(void (*ptr_callback_function)(int width, int height));
