@@ -24,104 +24,104 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h>
 #include <GL/glut.h>
 
 #include "global.h"
 #include "toolkit.h"
+#include "toolkit_glut.h"
 #include "debug.h"
 
-static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key);
-
-
+/**
+ * @brief Set an idle function to toolkit
+ * @param ptr_callback_function The idle callback function
+ * @return Return 0 means it success
+ */
 int set_toolkit_callback_idle(void (*ptr_callback_function)()) {
-	glutIdleFunc(ptr_callback_function);
+	set_glut_callback_idle(ptr_callback_function);
 	return 0;
 }
 
+/**
+ * @brief Set a display function to toolkit that draw OpenGL screen
+ * @param ptr_callback_function The display callback function
+ * @return Return 0 means it success
+ */
 int set_toolkit_callback_display(void (*ptr_callback_function)()) {
-	glutDisplayFunc(ptr_callback_function);
+	set_glut_callback_display(ptr_callback_function);
 	return 0;
 }
 
+/**
+ * @brief Set an reshape function to toolkit that be called whenever the window size changes
+ * @param ptr_callback_function The reshape callback function
+ * @return Return 0 means it success
+ */
 int set_toolkit_callback_reshape(void (*ptr_callback_function)(int width, int height)) {
-	glutReshapeFunc(ptr_callback_function);
-	return 0;
-}
-int set_toolkit_callback_keyboard(void (*ptr_callback_function)(
-				unsigned char key, int x, int y)) {
-	glutKeyboardFunc(ptr_callback_function);
-	return 0;
-}
-int set_toolkit_callback_special(void (*ptr_callback_function)(
-				int key, int x, int y)) {
-	glutSpecialFunc(ptr_callback_function);
-	return 0;
-}
-int set_toolkit_callback_mouse(void (*ptr_callback_function)(
-				int button, int state, int x UNUSED, int y UNUSED)) {
-	glutMouseFunc(ptr_callback_function);
+	set_glut_callback_reshape(ptr_callback_function);
 	return 0;
 }
 
+/**
+ * @brief Set an keyboard function to toolkit that be called whenever user press key
+ * @param ptr_callback_function The keyboard callback function
+ * @return Return 0 means it success
+ */
+int set_toolkit_callback_keyboard(void (*ptr_callback_function)(KEYBOARD_KEY)) {
+	set_glut_callback_keyboard(ptr_callback_function);
+	return 0;
+}
+
+/**
+ * @brief Toolkit initialize function
+ * @param argc Numbers of arguments which come from command line
+ * @param argv Command line arguments
+ * @param window_name The name of the window
+ * @param window_width The width of the window
+ * @param window_height The height of the window
+ * @param position_x Position of X coordinate of the window
+ * @param position_y Position of Y coordinate of the window
+ * @return Return 0 means it success
+ */
 int  toolkit_init(int *argc, char **argv, char *window_name
 		, int window_width, int window_height
 		, int position_x, int position_y) {
 
-	glutInit(argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInitWindowSize(window_width, window_height);
-	glutInitWindowPosition(position_x, position_y);
-	glutCreateWindow(window_name);
+	toolkit_init_struct *init_info;
+	init_info = malloc(sizeof(toolkit_init_struct));
+	init_info->cmd_argc      = argc;
+	init_info->cmd_argv      = argv;
+	init_info->window_name   = window_name;
+	init_info->window_width  = window_width;
+	init_info->window_height = window_height;
+	init_info->pos_x         = position_x;
+	init_info->pos_y         = position_y;
+
+	glut_init(init_info);
+
+	free(init_info);
 	return 0;
 }
 
+/**
+ * @brief Main loop function of toolkit
+ */
 void toolkit_mainloop() {
-	glutMainLoop();
+	glut_mainloop();
 }
 
+/**
+ * @brief Redisplay function while asking toolkit to redraw screen
+ */
 void toolkit_redisplay() {
-	glutPostRedisplay();
+	glut_redisplay();
 }
 
+/**
+ * @brief Show a leaving message to ask user to leave or not
+ */
 int toolkit_say_byebye() {
-	glutWireCube(2);
+	glut_say_byebye();
 	return 0;
-}
-
-/**
- * @brief An interface. Return KEYBOARD_KEY while user press a key
- * @param key The key code what user press
- */
-KEYBOARD_KEY toolkit_convert_keycode(unsigned char key) {
-	return convert_keycode_from_glut(key);
-}
-
-/**
- * @brief An implementation of interface conver_keycode
- * @param key The key code what user press
- */
-static KEYBOARD_KEY convert_keycode_from_glut(unsigned char key) {
-	if(key == GLUT_KEY_RIGHT) {
-		return KEY_RIGHT;
-	}else if(key == GLUT_KEY_LEFT) {
-		return KEY_LEFT;
-	}else if(key == GLUT_KEY_UP) {
-		return KEY_UP;
-	}else if(key == GLUT_KEY_DOWN) {
-		return KEY_DOWN;
-	}else if(key == GLUT_KEY_PAGE_UP) {
-		return KEY_PAGEUP;
-	}else if(key == GLUT_KEY_PAGE_DOWN) {
-		return KEY_PAGEDOWN;
-	}else if(key == 0x0d) {
-		return KEY_ENTER;
-	}else if(key == 0x1b) {
-		return KEY_ESC;
-	}else if(key == 'Y' || key == 'y') {
-		return KEY_Y;
-	}else {
-		debug("unknow key  %c = %x\n",key,key);
-		return KEY_UNKNOWN;
-	}
 }
 
