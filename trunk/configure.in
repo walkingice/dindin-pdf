@@ -17,40 +17,18 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION(0.14)
 
 #
-# Check Poppler Libs
+# Check required libraries
 #
-PKG_CHECK_MODULES(poppler, poppler)
-poppler_cflags=`pkg-config --cflags poppler poppler-glib`
-poppler_libs=`pkg-config --libs poppler poppler-glib`
-AC_SUBST(poppler_cflags)
-AC_SUBST(poppler_libs)
-
-#
-# Check OpenGL and GLUT
-#
-#PKG_CHECK_MODULES(OPENGL, [libgl3])
-#PKG_CHECK_MODULES(GLUT, [libglut3])
-
-# Check Pango
-PKG_CHECK_MODULES(pango, pango)
-pango_cflags=`pkg-config --cflags pango`
-pango_libs=`pkg-config --libs pango`
-AC_SUBST(pango_cflags)
-AC_SUBST(pango_libs)
-
-# Check Cairo
-PKG_CHECK_MODULES(cairo, cairo)
-cairo_cflags=`pkg-config --cflags cairo`
-cairo_libs=`pkg-config --libs cairo`
-AC_SUBST(cairo_cflags)
-AC_SUBST(cairo_libs)
-
-# Check Gdk-pixbuf
-PKG_CHECK_MODULES(gdkpixbuf, gdk-pixbuf-2.0)
-gdkpixbuf_cflags=`pkg-config --cflags gdk-pixbuf-2.0`
-gdkpixbuf_libs=`pkg-config --libs gdk-pixbuf-2.0`
-AC_SUBST(gdkpixbuf_cflags)
-AC_SUBST(gdkpixbuf_libs)
+PKG_CHECK_MODULES([DINDIN],
+		  [gdk-pixbuf-2.0
+		   gdk-2.0
+		   glib-2.0
+		   pango
+		   cairo
+		   poppler-glib
+		  ])
+AC_SUBST([DINDIN_CFLAGS])
+AC_SUBST([DINDIN_LIBS])
 
 dnl ** configure switches **
 AC_ARG_ENABLE([debug],

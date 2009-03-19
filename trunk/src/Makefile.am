@@ -6,21 +6,14 @@ SUBDIRS =
 
 confdir = $(pkgdatadir)
 
-othercflag = `pkg-config --cflags glib-2.0`
-otherlibs = `pkg-config --libs glib-2.0` -lglut
-
 INCLUDES = -I. \
          -I$(top_srcdir) \
 	-Wall	\
 	-Werror \
 	-DPACKAGE_NAME=\"@PACKAGE_NAME@\"  \
-        @poppler_cflags@ \
-	@pango_cflags@ \
-	@cairo_cflags@ \
-	@gdkpixbuf_cflags@ \
-	$(othercflag)
+	$(DINDIN_CFLAGS)
 
-bin_PROGRAMS =dindin
+bin_PROGRAMS = dindin
 
 noinst_HEADERS = cover_animation.h \
 		 cube_animation.h \
@@ -46,17 +39,7 @@ dindin_SOURCES = cover_animation.c \
 		 toolkit_glut.c \
 		 thumb_view.c
 		  
-dindin_LDADD = @poppler_libs@\
-	       @pango_libs@ \
-               @cairo_libs@ \
-	       @gdkpixbuf_libs@
-
-dindin_LDFLAGS = $(otherlibs)
-
-files_BIN = dindin
-
-	     
-EXTRA_DIST = $(files_BIN)
+dindin_LDADD = $(DINDIN_LIBS) -lglut
 
 clean-local:
 	rm -rf *~
