@@ -120,11 +120,6 @@ void display() {
 	}
 
 	glFlush();
-
-	// I have no idea how to move it out yet
-	// The only way I know that avoid GLUT is using something relate to X window.
-	// glXSwapBuffers(Display *display, Window window);
-	glutSwapBuffers();
 }
 
 /**
@@ -147,21 +142,20 @@ void resize(GLsizei width, GLsizei height) {
 /**
  * @brief callback function for toolkit if user press keyboard
  */
-void keyboard(unsigned char key, int x UNUSED, int y UNUSED) {
+void keyboard(KEYBOARD_KEY key) {
 	/* Get a keycode while user press any key.
 	   Pass it into State machine */
-	KEYBOARD_KEY new_key = toolkit_convert_keycode(key);
-	STATE next = get_state_by_key(new_key);
+	STATE next = get_state_by_key(key);
 	debug("return state is %d\n",next);
 
 	if(next == SHOW_SLIDE) {
 		debug("show slide \n");
 		set_state(next);
-		change_slide_or_not(new_key);
+		change_slide_or_not(key);
 	}else if(next == SHOW_THUMBNAIL) {
 		debug("show thumbnail\n");
 		set_state(next);
-		move_cursor_or_not(new_key);
+		move_cursor_or_not(key);
 	}else if(next == CHECK_EXIT_OR_NOT) {
 		debug("Exit? Press Y to exit\n");
 		set_state(next);
@@ -173,12 +167,6 @@ void keyboard(unsigned char key, int x UNUSED, int y UNUSED) {
 	}
 
 	toolkit_redisplay();
-}
-/**
- * @brief callback function for toolkit if user press some special keys
- */
-void keyboard_s(int key, int x, int y) {
-	keyboard((unsigned char)key, x, y);
 }
 
 /**
@@ -273,8 +261,8 @@ static int keep_read_slide(PopplerDocument* doc, struct list_head* slides_head, 
 	INIT_LIST_HEAD(&slide->node);
 	list_add_tail(&slide->node, slides_head);
 
-	init_slide_view(slides_head, display);
-	init_thumb_view(slides_head, display);
+	init_slide_view(slides_head, toolkit_redisplay);
+	init_thumb_view(slides_head, toolkit_redisplay);
 
 	toolkit_redisplay();
 	return now_page;
@@ -353,7 +341,6 @@ int main(int argc, char **argv)
 	set_toolkit_callback_display(&display);
 	set_toolkit_callback_reshape(&resize);
 	set_toolkit_callback_keyboard(&keyboard);
-	set_toolkit_callback_special(&keyboard_s);
 	// Hide this function cause we don't use mouse yet
 	//set_toolkit_callback_mouse(&mouse);
 

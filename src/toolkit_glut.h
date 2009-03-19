@@ -16,40 +16,27 @@
  */
 
 /**
- * \file toolkit.h
+ * \file toolkit_glut.h
  * \author Julian Chu (WalkingIce)
- * \date 2009-2-26
+ * \date 2009-3-19
  */
 
-#ifndef __DINDIN_TOOLKIT_H__
-#define __DINDIN_TOOLKIT_H__
+#ifndef __DINDIN_TOOLKIT_GLUT_H__
+#define __DINDIN_TOOLKIT_GLUT_H__
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-struct _toolkit_init_struct {
-	int*   cmd_argc;
-	char** cmd_argv;
+#include "toolkit.h"
 
-	char* window_name;
-	int window_width;
-	int window_height;
-	int pos_x;
-	int pos_y;
-};
+int  glut_init(toolkit_init_struct* init_info);
+void glut_mainloop();
+void glut_redisplay();
+int  glut_say_byebye();
 
-typedef struct _toolkit_init_struct toolkit_init_struct;
+int set_glut_callback_idle(void (*ptr_callback_function)());
+int set_glut_callback_display(void (*ptr_callback_function)());
+int set_glut_callback_reshape(void (*ptr_callback_function)(int width, int height));
+int set_glut_callback_keyboard(void (*ptr_callback_function)(KEYBOARD_KEY));
 
-int  toolkit_init(int *argc, char **argv, char *window_name
-		, int window_width, int window_height
-		, int position_x, int position_y);
-
-void toolkit_mainloop();
-void toolkit_redisplay();
-int  toolkit_say_byebye();
-
-int set_toolkit_callback_idle(void (*ptr_callback_function)());
-int set_toolkit_callback_display(void (*ptr_callback_function)());
-int set_toolkit_callback_reshape(void (*ptr_callback_function)(int width, int height));
-int set_toolkit_callback_keyboard(void (*ptr_callback_function)(KEYBOARD_KEY key));
 #endif
