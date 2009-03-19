@@ -31,7 +31,6 @@
 #include <string.h>
 
 #include <GL/gl.h>
-#include <GL/glut.h>
 #include <GL/glext.h>
 #include <glib/poppler.h>
 
@@ -181,27 +180,6 @@ static void idle_read_slides() {
 		debug("Dindin alread read in %dth slide\n", keep);
 	}
 }
-
-/**
- * @brief callback function for toolkit with mouse event, non-usable yet
- */
-/*
-   Hide this function cause we don't use mouse yet
-void mouse(int button, int state, int x UNUSED, int y UNUSED) {
-	switch(button) {
-		case GLUT_LEFT_BUTTON:
-			if(state == GLUT_DOWN) {
-				debug("mouse down\n");
-				glutIdleFunc(display);
-			}else if (state == GLUT_UP) {
-				debug("mouse up\n");
-			}
-			break;
-		default:
-			break;
-	}
-}
-*/
 
 /**
  * @brief Pass the keycode to thumb_view for deciding move cursor or not.
