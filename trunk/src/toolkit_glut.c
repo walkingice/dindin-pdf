@@ -100,7 +100,6 @@ int glut_say_byebye() {
 
 static void glut_display() {
 	if(dindin_display != NULL) {
-		printf("display in glut toolkit\n");
 		dindin_display();
 		glutSwapBuffers();
 	}
