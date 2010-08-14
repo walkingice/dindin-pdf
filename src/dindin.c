@@ -50,6 +50,7 @@
 struct list_head* slides_head; // Poppler read in PDF into struct Slide, then put them here
 static PopplerDocument* document = NULL;
 static int max_slides_number = 0;
+static int slide_width = 0;
 
 static void         print_usage();
 static void         change_slide_or_not(KEYBOARD_KEY key);
@@ -235,7 +236,7 @@ static int keep_read_slide(PopplerDocument* doc, struct list_head* slides_head, 
 	 * because of that the first page of _doc_ is 0 but not 1 */
 	slide = (Slide *) calloc(1, sizeof(Slide));
 	page  = poppler_document_get_page(doc, now_page);
-	init_slide(page, slide, now_page);
+	init_slide(page, slide, slide_width, now_page);
 	INIT_LIST_HEAD(&slide->node);
 	list_add_tail(&slide->node, slides_head);
 
@@ -270,7 +271,9 @@ int main(int argc, char **argv)
 	int c;
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "hp:")) != -1) {
+        slide_width = SCREEN_WIDTH;
+
+	while ((c = getopt (argc, argv, "hpw:")) != -1) {
 		switch (c)
 		{
 			case 'h':
@@ -280,6 +283,9 @@ int main(int argc, char **argv)
 				page_opt_value = optarg;
 				p_flag = 1;
 				break;
+                        case 'w':
+                                slide_width = atoi(optarg);
+                                break;
 			case '?':
 				if (optopt == 'p')
 					fprintf (stderr, "Option -%c requires an argument.\n", optopt);
