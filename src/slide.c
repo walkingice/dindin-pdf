@@ -51,10 +51,12 @@ gchar * get_file_uri(const gchar *filename) {
  * @param page A poppler page that be used for initialization of slide
  * @param slide the target you want to initial. the struct should be already allocated.
  */
-void init_slide(PopplerPage *page, Slide* slide,int index) {
+void init_slide(PopplerPage *page, Slide* slide, int expect_width, int index) {
 
 	assert(slide != NULL);
 	assert(page != NULL);
+
+        float scale_ratio = 1.0;
 
 	slide->index = index;
 
@@ -62,11 +64,15 @@ void init_slide(PopplerPage *page, Slide* slide,int index) {
 	poppler_page_get_size(page,&(slide->width),&(slide->height));
 	debug("index= %d, width=%d, height=%d\n", index, (int)slide->width, (int)slide->height);
 
+        scale_ratio = expect_width / slide->width;
+        slide->width  = slide->width * scale_ratio;
+        slide->height = slide->height * scale_ratio;
+
 	gboolean alpha = 1;
 	slide->pixbuf  = gdk_pixbuf_new(GDK_COLORSPACE_RGB, alpha, 8, slide->width, slide->height);
 
 	poppler_page_render_to_pixbuf(page, 0, 0, (int)slide->width, (int)slide->height,
-			1.0, 0, slide->pixbuf);
+			scale_ratio, 0, slide->pixbuf);
 
 	create_texture(&slide->page_texture, gdk_pixbuf_get_pixels(slide->pixbuf)
 			, slide->width, slide->height);

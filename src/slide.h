@@ -44,5 +44,5 @@ struct _Slide{
 typedef struct _Slide Slide;
 
 gchar* get_file_uri(const gchar *filename);
-void   init_slide(PopplerPage *page, Slide* slide, int index);
+void   init_slide(PopplerPage *page, Slide* slide, int expect_width, int index);
 #endif
